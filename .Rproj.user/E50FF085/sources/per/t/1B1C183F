@@ -1,0 +1,28 @@
+{
+    "id": "1B1C183F",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1690474640803.0,
+    "source_on_save": false,
+    "relative_order": 5,
+    "properties": {
+        "id": "1087eeb74b6b4102ba2756f7aad96161",
+        "name": "disease_associated_genes",
+        "title": "disease_associated_genes",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1690474626,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1690474640803,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,28 @@
+library(data.table)
+library(tidyverse)
+library(dplyr)
+library(R.utils)
+
+
+# gzip("data/geneLists/alsGwasList/GCST90013429_buildGRCh37.tsv",
+#      remove = FALSE)
+
+disease_associated_genes <-
+  fread("data/geneLists/alsGwasList/GCST90013429_buildGRCh37.tsv") %>%
+  as.data.frame() %>%
+  arrange(p_value) %>%
+  filter(p_value < 0.05)
+  
+  
+  
+  dplyr::select(mappedGenes) %>%
+  distinct() %>%
+  mutate(mappedGenesOne = str_split(mappedGenes, ",", simplify = T)[, 1],
+         mappedGenesTwo = str_split(mappedGenes, ",", simplify = T)[, 2],
+         mappedGenesThree = str_split(mappedGenesOne, ";", simplify = T)[, 1]) %>%
+  dplyr::select(mappedGenesThree, mappedGenesTwo) %>%
+  unlist() %>%
+  as.data.frame() %>%
+  distinct()
+
+write.csv(disease_associated_genes, "data/geneLists/alsGwasList/finalGenes.csv", row.names = FALSE)

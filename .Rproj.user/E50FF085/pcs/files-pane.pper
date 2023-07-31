@@ -1,0 +1,9 @@
+{
+    "sortOrder": [
+        {
+            "columnIndex": 2,
+            "ascending": false
+        }
+    ],
+    "path": "~/statisticalGenetics/R/01_creating_ALS_gene_list"
+}
