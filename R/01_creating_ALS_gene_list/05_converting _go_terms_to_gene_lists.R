@@ -2,22 +2,27 @@ library(biomaRt)
 library(dplyr)
 library(tidyverse)
 
-dir.create("data/geneLists/finalGeneLists",
+input_file_path <-
+  "data/01_geneLists/04_significantNonRedundantGeneEnrichmentResults/"
+
+output_file_path <-
+  "data/01_geneLists/05_geneEnrichmentTermGenes/"
+
+dir.create(output_file_path,
            showWarnings = FALSE,
            recursive = TRUE)
 
-file_path <- "data/geneLists/filteredEnrichmentResults"
 
 go_file_names <-
   list.files(
-    path = file_path,
+    path = input_file_path,
     pattern = "GO_",
     all.files = FALSE,
     full.names = FALSE
   ) %>% rev ()
 
 for (go_file_name in go_file_names) {
-  go_file_paths <- paste0(file_path, "/", go_file_name)
+  go_file_paths <- paste0(input_file_path, go_file_name)
 
   go_data_frame <- read.csv(go_file_paths, header = TRUE)
 
@@ -25,19 +30,19 @@ for (go_file_name in go_file_names) {
     str_replace(go_file_name, ".csv", "")
 
   ensembl <-
-    useMart("ensembl", dataset = "hsapiens_gene_ensembl") #uses human ensembl annotations
+    useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 
   go_ids <- unique(go_data_frame$ID)
+
   go_terms <-
     str_replace_all(unique(go_data_frame$Term), "[[:punct:]]", "")
+
   go_db <- unique(go_data_frame$GO_DB)
 
   gene_data_frame <-
     lapply(go_ids, function(i) {
       getBM(
-        attributes = c('hgnc_symbol'#, 'chromosome_name', 'start_position', 'end_position'
-                       ),
-        # filters = 'go',
+        attributes = 'hgnc_symbol',
         filters = "go_parent_term",
         uniqueRows = TRUE,
         values = i,
@@ -45,7 +50,7 @@ for (go_file_name in go_file_names) {
       )
     })
 
-  dir.create(paste0("data/geneLists/finalGeneLists/", go_db),
+  dir.create(paste0(output_file_path, go_db),
              showWarnings = FALSE,
              recursive = TRUE)
 
@@ -54,7 +59,7 @@ for (go_file_name in go_file_names) {
 
     write.csv(
       temp_gene_data_frame,
-      paste0("data/geneLists/finalGeneLists/", go_db, "/", go_terms[gene_data_frame_number], ".csv"),
+      paste0(output_file_path, go_db, "/", go_terms[gene_data_frame_number], ".csv"),
       row.names = FALSE
     )
   }

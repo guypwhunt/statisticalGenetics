@@ -3,8 +3,15 @@ library(tidyverse)
 library(enrichR)
 library(dplyr)
 
+input_file_path <-
+  "data/01_geneLists/01_knownDiseaseRelatedGenes/"
+
+ output_file_path <-
+   "data/01_geneLists/02_geneEnrichmentResults/"
+
 combined_gene_list <-
-  fread("data/geneLists/combinedGeneList.csv") %>%
+  paste0(input_file_path, "combinedGeneList.csv") %>%
+  fread() %>%
   as.data.frame() %>%
   dplyr::select(x) %>%
   as.list() %>%
@@ -14,14 +21,10 @@ combined_gene_list <-
 
 dbs <- listEnrichrDbs()
 
-head(dbs)
-
 enriched <- enrichr(combined_gene_list, dbs$libraryName)
 
-head(enriched)
-
 dir.create(
-  "data/geneLists/enrichmentResults",
+  output_file_path,
   recursive = TRUE,
   showWarnings = FALSE
 )
@@ -29,17 +32,17 @@ dir.create(
 for (n in seq(length(enriched))) {
   write.csv(enriched[[n]],
             paste0(
-              "data/geneLists/enrichmentResults/",
+              output_file_path,
               names(enriched)[n],
               ".csv"
             ))
 
-  print(plotEnrich(
-    enriched[[n]],
-    showTerms = 20,
-    numChar = 40,
-    y = "Count",
-    orderBy = "P.value",
-    title = names(enriched)[n]
-  ))
+  # print(plotEnrich(
+  #   enriched[[n]],
+  #   showTerms = 20,
+  #   numChar = 40,
+  #   y = "Count",
+  #   orderBy = "P.value",
+  #   title = names(enriched)[n]
+  # ))
 }

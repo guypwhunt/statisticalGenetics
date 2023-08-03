@@ -6,10 +6,14 @@ library(readxl)
 library(biomaRt)
 library(ggvenn)
 
+input_file_path <-
+  "data/01_geneLists/01_knownDiseaseRelatedGenes/"
+
 ensembl <-
   useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
 
-disgenet_gene_list <- fread("data/geneLists/Disgenet.tsv") %>%
+disgenet_gene_list <-
+  fread(paste0(input_file_path, "Disgenet.tsv")) %>%
   as.data.frame() %>%
   filter(Score_gda >= 0.3) %>%
   dplyr::select(Gene) %>%
@@ -34,7 +38,8 @@ length(disgenet_gene_list)
 clinvar_clinical_significance_column_name <-
   "Clinical significance (Last reviewed)"
 
-clinvar_gene_list <- fread("data/geneLists/clinvar.txt") %>%
+clinvar_gene_list <-
+  fread(paste0(input_file_path, "clinvar.txt")) %>%
   as.data.frame() %>%
   filter(grepl(
     "Pathogenic",
@@ -49,19 +54,14 @@ clinvar_gene_list <- fread("data/geneLists/clinvar.txt") %>%
   #   )
   # ) %>%
   filter(
-    grepl(
-      "Amyotrophic lateral sclerosis",
-      `Condition(s)`,
-      ignore.case = TRUE
-    ) | grepl(
-      "motor neurone disease",
-      `Condition(s)`,
-      ignore.case = TRUE
-    ) | grepl(
-      "motor neuron disease",
-      `Condition(s)`,
-      ignore.case = TRUE
-    )
+    grepl("Amyotrophic lateral sclerosis",
+          `Condition(s)`,
+          ignore.case = TRUE) | grepl("motor neurone disease",
+                                      `Condition(s)`,
+                                      ignore.case = TRUE) |
+      grepl("motor neuron disease",
+            `Condition(s)`,
+            ignore.case = TRUE)
   ) %>%
   dplyr::select("Gene(s)") %>%
   as.list() %>%
@@ -85,7 +85,8 @@ clinvar_gene_list <- getBM(
 head(clinvar_gene_list)
 length(clinvar_gene_list)
 
-alsod_gene_list <- read_excel("data/geneLists/alsod.xlsx") %>%
+alsod_gene_list <-
+  read_excel(paste0(input_file_path, "alsod.xlsx")) %>%
   as.data.frame() %>%
   filter(Category != 'Tenuous' |
            Category == 'Unassigned') %>%
@@ -110,21 +111,18 @@ head(alsod_gene_list)
 length(alsod_gene_list)
 
 omim_gene_list <-
-  read_excel("data/geneLists/OMIM.xlsx", skip = 4) %>%
+  read_excel(paste0(input_file_path, "OMIM.xlsx"), skip = 4) %>%
   as.data.frame() %>%
-  filter(grepl(
-    "Amyotrophic lateral sclerosis",
-    `Phenotype`,
-    ignore.case = TRUE
-  )| grepl(
-    "motor neurone disease",
-    `Phenotype`,
-    ignore.case = TRUE
-  ) | grepl(
-    "motor neuron disease",
-    `Phenotype`,
-    ignore.case = TRUE
-  )) %>%
+  filter(
+    grepl("Amyotrophic lateral sclerosis",
+          `Phenotype`,
+          ignore.case = TRUE) | grepl("motor neurone disease",
+                                      `Phenotype`,
+                                      ignore.case = TRUE) |
+      grepl("motor neuron disease",
+            `Phenotype`,
+            ignore.case = TRUE)
+  ) %>%
   dplyr::select("Gene/Locus") %>%
   as.list() %>%
   unname() %>%
@@ -164,11 +162,11 @@ for (list_number in seq(length(combined_gene_list))) {
       length(combined_gene_list[[list_number]]))
 }
 
-dir.create("data/geneLists/summaryStats", showWarnings = FALSE)
+dir.create(paste0(input_file_path, "summaryStats", showWarnings = FALSE))
 
 write.csv(
   number_of_genes_per_list,
-  "data/geneLists/summaryStats/numberOfGenesPerList.csv"
+  paste0(input_file_path, "summaryStats/numberOfGenesPerList.csv")
 )
 
 number_of_common_genes_per_list <-
@@ -195,7 +193,10 @@ for (list_number_one in seq(length(combined_gene_list))) {
 
 write.csv(
   number_of_common_genes_per_list,
-  "data/geneLists/summaryStats/numberOfCommonGenesPerList.csv"
+  paste0(
+    input_file_path,
+    "summaryStats/numberOfCommonGenesPerList.csv"
+  )
 )
 
 combined_gene_list <- combined_gene_list %>%
@@ -204,4 +205,6 @@ combined_gene_list <- combined_gene_list %>%
   unique() %>%
   str_replace_all("@", "")
 
-write.csv(combined_gene_list, "data/geneLists/combinedGeneList.csv", row.names = FALSE)
+write.csv(combined_gene_list,
+          paste0(input_file_path, "combinedGeneList.csv"),
+          row.names = FALSE)

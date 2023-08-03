@@ -2,7 +2,7 @@
     "sortOrder": [
         {
             "columnIndex": 2,
-            "ascending": false
+            "ascending": true
         }
     ],
     "path": "~/statisticalGenetics/R/01_creating_ALS_gene_list"
