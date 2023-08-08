@@ -1,79 +1,101 @@
 library(data.table)
 library(tidyverse)
 library(dplyr)
+library(biomaRt)
+library(ggvenn)
 
-genes_to_remove_input_file_path <-
-  "data/01_geneLists/07_diseaseGwasResults/genesToRemove/"
-
-go_genes_input_file_path <-
-  "data/01_geneLists/05_geneEnrichmentTermGenes/"
-
-dglinker_genes_input_file_path <-
-  "data/01_geneLists/06_dglinker_results/allPublicationDataBases/model_results/"
+input_file_path <-
+  "data/01_geneLists/07_diseaseGwasResults/gwasCatalogue/"
 
 output_file_path <-
-  "data/01_geneLists/08_geneListsWithKnownDiseaseAssociatedGenesRemoved/"
+  "data/01_geneLists/07_diseaseGwasResults/genesToRemove/"
 
-dir.create(output_file_path, showWarnings = FALSE)
+ensembl <-
+  useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
 
-genes_to_remove_file_name <-
-  list.files(genes_to_remove_input_file_path,
-             pattern = "gwasCataloguePlusOrginalGenes")
-
-genes_to_remove_file_path <-
-  paste0(genes_to_remove_input_file_path, genes_to_remove_file_name)
-
-genes_to_remove_data <-
-  read.csv(genes_to_remove_file_path) %>% as.list() %>% unname() %>% unlist()
-
-go_directory_names <-
-  list.dirs(go_genes_input_file_path, full.names = FALSE) %>%
-  na.omit()
-
-go_directory_names <- go_directory_names[go_directory_names != ""]
-
-for (go_directory_name in go_directory_names) {
-  temp_go_genes_input_file_path <-
-    paste0(go_genes_input_file_path, go_directory_name, "/")
-
-  temp_output_file_path <-
-    paste0(output_file_path, go_directory_name, "/")
-
-  dir.create(temp_output_file_path, showWarnings = FALSE)
-
-  temp_files <- list.files(temp_go_genes_input_file_path)
-
-  for (temp_file in temp_files) {
-    temp_data <-
-      read.csv(paste0(temp_go_genes_input_file_path, temp_file)) %>%
-      as.list() %>% unname() %>% unlist()
-
-    temp_data <- temp_data[!temp_data %in% genes_to_remove_data]
-
-    write.csv(temp_data,
-              paste0(temp_output_file_path, temp_file),
-              row.names = FALSE)
-  }
-}
-
-dglinker_file_name <- list.files(dglinker_genes_input_file_path,
-                                 pattern = "results")
-
-dglinker_file_path <- paste0(dglinker_genes_input_file_path,
-                             dglinker_file_name)
-
-dglinker_data <- fread(dglinker_file_path) %>%
+disease_associated_genes <-
+  paste0(input_file_path,
+         "MONDO_0004976_associations_export_als.tsv") %>%
+  fread() %>%
   as.data.frame() %>%
-  filter(`Association type` == "Predicted") %>%
-  dplyr::select(`Gene name`) %>% as.list() %>% unname() %>% unlist()
+  # filter(pValue < 5 * 10 ^ -8) %>%
+  dplyr::select(mappedGenes) %>%
+  unique() %>%
+  na.omit() %>%
+  as.list() %>%
+  unname() %>%
+  unlist() %>%
+  str_split(",") %>%
+  unlist() %>%
+  str_split(";") %>%
+  unlist() %>%
+  unique() %>%
+  trimws()
 
-dglinker_data <-
-  dglinker_data[!dglinker_data %in% genes_to_remove_data]
+disease_associated_genes2 <-
+  paste0(
+    input_file_path,
+    "gwas-association-downloaded_2023-08-02-EFO_0001357_sporadic.tsv"
+  ) %>%
+  fread() %>%
+  as.data.frame() %>%
+  # filter(`P-VALUE` < 5 * 10 ^ -8) %>%
+  dplyr::select("REPORTED GENE(S)") %>%
+  unique() %>%
+  na.omit() %>%
+  as.list() %>%
+  unname() %>%
+  unlist() %>%
+  str_split(",") %>%
+  unlist() %>%
+  str_split(";") %>%
+  unlist() %>%
+  unique() %>%
+  trimws()
 
-dglinker_output_file_path <- paste0(output_file_path, "dglinker/")
+disease_associated_genes <-
+  append(disease_associated_genes, disease_associated_genes2) %>% unique()
 
-dir.create(dglinker_output_file_path, showWarnings = FALSE)
+disease_associated_genes <- getBM(
+  attributes = c('hgnc_symbol'),
+  filters = 'hgnc_symbol',
+  values = disease_associated_genes,
+  mart = ensembl
+) %>%
+  as.list() %>%
+  unlist() %>%
+  unique()
 
-write.csv(dglinker_data,
-          paste0(dglinker_output_file_path, "dglinker.csv"),
-          row.names = FALSE)
+length(disease_associated_genes)
+
+dir.create(output_file_path,
+           showWarnings = FALSE)
+
+write.csv(
+  disease_associated_genes,
+  paste0(output_file_path, "gwasCatalogueGenes.csv"),
+  row.names = FALSE
+)
+
+original_disease_gene_list <-
+  read.csv("data/01_geneLists/01_knownDiseaseRelatedGenes/combinedGeneList.csv") %>%
+  as.list() %>%
+  unlist() %>%
+  unname()
+
+combined_disease_gene_list <- original_disease_gene_list %>%
+  append(disease_associated_genes) %>%
+  unique()
+
+write.csv(
+  combined_disease_gene_list,
+  paste0(output_file_path, "gwasCataloguePlusOrginalGenes.csv"),
+  row.names = FALSE
+)
+
+combined_gene_list <- list(original = original_disease_gene_list,
+                           gwas = disease_associated_genes)
+
+ggvenn(combined_gene_list,
+       set_name_size = 12,
+       text_size = 12)
