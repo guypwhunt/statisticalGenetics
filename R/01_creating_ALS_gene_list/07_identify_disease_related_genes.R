@@ -13,12 +13,37 @@ output_file_path <-
 ensembl <-
   useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
 
+# disease_associated_genes <-
+#   c(
+#     "MOBP",
+#     "NEK1",
+#     "TNIP1",
+#     "ERGIC1",
+#     "HLA-DQB1",
+#     "PTPRN2",
+#     "C9orf72",
+#     "TBK1",
+#     "KIF5A",
+#     "COG3",
+#     "SCFD1",
+#     "SLC9A8",
+#     "CFAP410",
+#     "SOD1",
+#     "UNC13A"
+#   )
+
 disease_associated_genes <-
   paste0(input_file_path,
          "MONDO_0004976_associations_export_als.tsv") %>%
   fread() %>%
   as.data.frame() %>%
-  # filter(pValue < 5 * 10 ^ -8) %>%
+  filter(pValue < 5 * 10 ^ -8) %>%
+  # filter(
+  #   traitName %in% c(
+  #     "Amyotrophic lateral sclerosis",
+  #     "Amyotrophic lateral sclerosis (sporadic)"
+  #   )
+  # ) %>%
   dplyr::select(mappedGenes) %>%
   unique() %>%
   na.omit() %>%
@@ -39,7 +64,8 @@ disease_associated_genes2 <-
   ) %>%
   fread() %>%
   as.data.frame() %>%
-  # filter(`P-VALUE` < 5 * 10 ^ -8) %>%
+  filter(`P-VALUE` < 5 * 10 ^ -8) %>%
+  #filter(`MAPPED_TRAIT` == "sporadic amyotrophic lateral sclerosis") %>%
   dplyr::select("REPORTED GENE(S)") %>%
   unique() %>%
   na.omit() %>%

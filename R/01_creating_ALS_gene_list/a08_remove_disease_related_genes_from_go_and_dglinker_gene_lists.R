@@ -24,7 +24,8 @@ genes_to_remove_file_path <-
   paste0(genes_to_remove_input_file_path, genes_to_remove_file_name)
 
 genes_to_remove_data <-
-  read.csv(genes_to_remove_file_path) %>% as.list() %>% unname() %>% unlist()
+  c()
+  # read.csv(genes_to_remove_file_path) %>% as.list() %>% unname() %>% unlist()
 
 go_directory_names <-
   list.dirs(go_genes_input_file_path, full.names = FALSE) %>%
@@ -64,7 +65,7 @@ dglinker_file_path <- paste0(dglinker_genes_input_file_path,
 
 dglinker_data <- fread(dglinker_file_path) %>%
   as.data.frame() %>%
-  filter(`Association type` == "Predicted") %>%
+  filter(`Association type` != "Not-associated") %>%
   dplyr::select(`Gene name`) %>% as.list() %>% unname() %>% unlist()
 
 dglinker_data <-
