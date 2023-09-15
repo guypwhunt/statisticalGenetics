@@ -2,11 +2,23 @@ library(biomaRt)
 library(dplyr)
 library(tidyverse)
 
+input_file_name <- commandArgs(trailingOnly = TRUE)[1]
+
+# input_file_name <- "als"
+
 input_file_path <-
-  "data/01_geneLists/04_significantNonRedundantGeneEnrichmentResults/"
+  paste0(
+    "data/02_gene_set_enrichment/03_significant_non_redundant_gene_enrichmentResults/",
+    input_file_name,
+    "/"
+  )
 
 output_file_path <-
-  "data/01_geneLists/05_geneEnrichmentTermGenes/"
+  paste0(
+    "data/02_gene_set_enrichment/05_gene_enrichment_term_genes/",
+    input_file_name,
+    "/"
+  )
 
 dir.create(output_file_path,
            showWarnings = FALSE,

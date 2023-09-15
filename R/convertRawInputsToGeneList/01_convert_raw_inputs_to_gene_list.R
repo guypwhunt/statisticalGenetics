@@ -7,7 +7,10 @@ library(biomaRt)
 library(ggvenn)
 
 input_file_path <-
-  "data/01_geneLists/01_knownDiseaseRelatedGenes/"
+  "data/01_data_input/raw_inputs/"
+
+output_file_path <-
+  "data/01_data_input/01_disease_related_genes/"
 
 ensembl <-
   useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
@@ -148,14 +151,23 @@ combined_gene_list <- list(
 )
 
 ggvenn(combined_gene_list)
+ggsave(
+  paste0(input_file_path,
+         "summaryStats/vennDiagram.png"),
+  dpi = 600,
+  width = 12,
+  height = 8,
+  units = c("cm")
+)
+
 
 for (list_number in seq(length(combined_gene_list))) {
-  number_of_genes_per_list[list_number,] <-
+  number_of_genes_per_list[list_number, ] <-
     c(names(combined_gene_list)[list_number],
       length(combined_gene_list[[list_number]]))
 }
 
-dir.create(paste0(input_file_path, "summaryStats", showWarnings = FALSE))
+dir.create(paste0(input_file_path, "summaryStats"), showWarnings = FALSE)
 
 write.csv(
   number_of_genes_per_list,
@@ -173,7 +185,7 @@ row_number <- 1
 
 for (list_number_one in seq(length(combined_gene_list))) {
   for (list_number_two in seq(length(combined_gene_list))) {
-    number_of_common_genes_per_list[row_number, ] <-
+    number_of_common_genes_per_list[row_number,] <-
       c(names(combined_gene_list)[list_number_one],
         names(combined_gene_list)[list_number_two],
         length(intersect(
@@ -199,5 +211,5 @@ combined_gene_list <- combined_gene_list %>%
   str_replace_all("@", "")
 
 write.csv(combined_gene_list,
-          paste0(input_file_path, "combinedGeneList.csv"),
+          paste0(output_file_path, "als.csv"),
           row.names = FALSE)

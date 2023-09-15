@@ -2,13 +2,18 @@ library(GO.db)
 library(dplyr)
 library(tidyverse)
 
-file_path <- "data/01_geneLists/02_geneEnrichmentResults"
+input_file_name <- commandArgs(trailingOnly = TRUE)[1]
+
+# input_file_name <- "als"
 
 input_file_path <-
-  "data/01_geneLists/02_geneEnrichmentResults/"
+  paste0("data/02_gene_set_enrichment/01_gene_enrichment_results/",
+         input_file_name, "/")
 
 output_file_path <-
-  "data/01_geneLists/03_significantGeneEnrichmentResults/"
+  paste0("data/02_gene_set_enrichment/02_significant_gene_enrichment_results/",
+         input_file_name, "/")
+
 
 go_hierarchy <- as.data.frame(GO.db::GOBPANCESTOR)
 go_hierarchy <-
@@ -36,11 +41,9 @@ go_data_frames <- lapply(go_file_paths, function(i) {
   read.csv(i, header = TRUE)
 })
 
-dir.create(
-  output_file_path,
-  showWarnings = FALSE,
-  recursive = TRUE
-)
+dir.create(output_file_path,
+           showWarnings = FALSE,
+           recursive = TRUE)
 
 for (go_data_frame_number in seq(length(go_data_frames))) {
   temp_go_data_frame <-
@@ -52,7 +55,7 @@ for (go_data_frame_number in seq(length(go_data_frames))) {
   message(nrow(temp_go_data_frame))
 
   temp_go_hierarchy <-
-    go_hierarchy[go_hierarchy[, 1] %in% temp_go_data_frame$ID,]
+    go_hierarchy[go_hierarchy[, 1] %in% temp_go_data_frame$ID, ]
 
   message(nrow(temp_go_data_frame))
 
@@ -60,10 +63,8 @@ for (go_data_frame_number in seq(length(go_data_frames))) {
 
   write.csv(
     temp_go_data_frame,
-    file = paste0(
-      output_file_path,
-      go_file_names[go_data_frame_number]
-    ),
+    file = paste0(output_file_path,
+                  go_file_names[go_data_frame_number]),
     row.names = FALSE
   )
 }

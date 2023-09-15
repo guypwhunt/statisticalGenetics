@@ -3,7 +3,8 @@ install.packages(c("data.table",
                    "dplyr",
                    "stringr",
                    "readxl",
-                   "ggvenn"),
+                   "ggvenn",
+                   "tools"),
                  dependencies = TRUE,
                  repos='http://cran.uk.r-project.org')
 
