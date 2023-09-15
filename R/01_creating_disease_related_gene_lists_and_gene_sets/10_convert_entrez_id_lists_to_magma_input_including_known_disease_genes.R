@@ -46,7 +46,7 @@ magma_input <- as.list(magma_input) %>%
 
 fwrite(
   magma_input,
-  paste0(output_file_path, "magmaInput.txt"),
+  paste0(output_file_path, "geneSetsIncludingKnownDiseaseGenes.txt"),
   sep = "\n",
   quote = FALSE
 )

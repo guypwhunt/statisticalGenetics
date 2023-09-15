@@ -46,13 +46,6 @@ clinvar_gene_list <-
     `Clinical significance (Last reviewed)`,
     ignore.case = FALSE
   ))  %>%
-  # filter(
-  #   !grepl(
-  #     "Likely pathogenic",
-  #     `Clinical significance (Last reviewed)`,
-  #     ignore.case = FALSE
-  #   )
-  # ) %>%
   filter(
     grepl("Amyotrophic lateral sclerosis",
           `Condition(s)`,

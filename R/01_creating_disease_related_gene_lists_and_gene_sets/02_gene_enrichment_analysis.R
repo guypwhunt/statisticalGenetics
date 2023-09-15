@@ -36,13 +36,4 @@ for (n in seq(length(enriched))) {
               names(enriched)[n],
               ".csv"
             ))
-
-  # print(plotEnrich(
-  #   enriched[[n]],
-  #   showTerms = 20,
-  #   numChar = 40,
-  #   y = "Count",
-  #   orderBy = "P.value",
-  #   title = names(enriched)[n]
-  # ))
 }
