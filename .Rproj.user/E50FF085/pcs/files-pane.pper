@@ -5,5 +5,5 @@
             "ascending": true
         }
     ],
-    "path": "~/statisticalGenetics/R/convertRawInputsToGeneList"
+    "path": "~/statisticalGenetics/R/01_gene_set_enrichment"
 }

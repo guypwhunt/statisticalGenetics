@@ -7,28 +7,26 @@ input_file_name <- commandArgs(trailingOnly = TRUE)[1]
 # input_file_name <- "als"
 
 input_file_path <-
-  "data/01_geneLists/07_diseaseGwasResults/genesToRemove/"
-
-original_genes_input_file_path <-
-  "data/01_geneLists/01_knownDiseaseRelatedGenes/combinedGeneList.csv"
+  paste0("data/05_disease_associated_genes/", input_file_name, "/")
 
 output_file_path <-
-  "data/01_geneLists/08_geneListsInEntrezIdFormat/diseaseRelatedGenes/"
+  paste0("data/06_format_gene_sets/",
+         input_file_name,
+         "/01_gene_sets/diseaseAssociatedGenes/")
 
 dir.create(output_file_path,
            showWarnings = FALSE,
            recursive = TRUE)
 
 input_file_paths <-
-  c(original_genes_input_file_path,
-    paste0(input_file_path, list.files(input_file_path)))
+  paste0(input_file_path, list.files(input_file_path))
 
 ensembl <-
   useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
 
 for (file_path in input_file_paths) {
   disease_related_genes <-
-    fread(file_path) %>%
+    fread(file_path, header = FALSE) %>%
     as.list() %>%
     unname() %>%
     unlist()
@@ -43,8 +41,11 @@ for (file_path in input_file_paths) {
   ) %>%
     unique()
 
-  fwrite(disease_related_genes,
-         paste0(output_file_path,
-                sub('.*\\/', '', file_path)),
-         row.names = FALSE)
+  fwrite(
+    disease_related_genes,
+    paste0(output_file_path,
+           sub('.*\\/', '', file_path)),
+    row.names = FALSE,
+    col.names = FALSE
+  )
 }
