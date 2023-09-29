@@ -5,5 +5,5 @@
             "ascending": true
         }
     ],
-    "path": "~/statisticalGenetics/shellScripts/02_magma"
+    "path": "~/statisticalGenetics/R/convertRawInputsToGeneList"
 }

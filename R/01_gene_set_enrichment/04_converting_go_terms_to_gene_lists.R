@@ -15,7 +15,7 @@ input_file_path <-
 
 output_file_path <-
   paste0(
-    "data/02_gene_set_enrichment/05_gene_enrichment_term_genes/",
+    "data/02_gene_set_enrichment/04_gene_enrichment_term_genes/",
     input_file_name,
     "/"
   )
@@ -59,7 +59,11 @@ for (go_file_name in go_file_names) {
         uniqueRows = TRUE,
         values = i,
         mart = ensembl
-      )
+      ) %>%
+        as.list() %>%
+        unlist() %>%
+        unique() %>%
+        as.data.frame()
     })
 
   dir.create(paste0(output_file_path, go_db),
@@ -69,10 +73,10 @@ for (go_file_name in go_file_names) {
   for (gene_data_frame_number in seq(length(gene_data_frame))) {
     temp_gene_data_frame <- gene_data_frame[[gene_data_frame_number]]
 
-    write.csv(
+    fwrite(
       temp_gene_data_frame,
       paste0(output_file_path, go_db, "/", go_terms[gene_data_frame_number], ".csv"),
-      row.names = FALSE
+      row.names = FALSE, col.names = FALSE
     )
   }
   message(go_db)

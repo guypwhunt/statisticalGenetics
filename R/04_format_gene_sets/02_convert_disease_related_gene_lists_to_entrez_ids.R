@@ -2,6 +2,10 @@ library(data.table)
 library(biomaRt)
 library(dplyr)
 
+input_file_name <- commandArgs(trailingOnly = TRUE)[1]
+
+# input_file_name <- "als"
+
 input_file_path <-
   "data/01_geneLists/07_diseaseGwasResults/genesToRemove/"
 

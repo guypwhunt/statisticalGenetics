@@ -18,9 +18,8 @@ output_file_path <- paste0(
 
 combined_gene_list <-
   paste0(input_file_path, input_file_name) %>%
-  fread() %>%
+  fread(header=FALSE) %>%
   as.data.frame() %>%
-  dplyr::select(x) %>%
   as.list() %>%
   unlist() %>%
   unname() %>%
