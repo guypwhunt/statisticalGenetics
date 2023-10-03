@@ -52,7 +52,7 @@ for (directory in directories) {
       unlist() %>%
       as.list()
 
-    if (directory != "diseaseRelatedGenes") {
+    if (directory != "diseaseAssociatedGenes") {
       gene_list <- gene_list[!gene_list %in% genesToRemove]
     }
 

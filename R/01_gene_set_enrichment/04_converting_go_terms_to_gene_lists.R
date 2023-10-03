@@ -1,6 +1,7 @@
 library(biomaRt)
 library(dplyr)
 library(tidyverse)
+library(data.table)
 
 input_file_name <- commandArgs(trailingOnly = TRUE)[1]
 
