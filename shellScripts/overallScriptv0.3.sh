@@ -30,9 +30,15 @@ Rscript R/04_format_gene_sets/05_convert_entrez_id_lists_to_magma_input_excludin
 # Run Magma
 mkdir -p data/07_magma_results/$folderName/
 
-software/01_magmaSoftware/magma --annotate window=0 --snp-loc data/01_data_input/07_reference_population/$folderName/g1000_eur.bim  --gene-loc data/01_data_input/08_gene_locations/$folderName/NCBI37.3.gene.loc --out data/07_magma_results/$folderName/gene_annotation
+software/01_magmaSoftware/magma --annotate window=0 --snp-loc $(ls data/01_data_input/07_reference_population/$folderName/*.bim) \
+--gene-loc $(ls data/01_data_input/08_gene_locations/$folderName/*.gene.loc) --out data/07_magma_results/$folderName/gene_annotation
 
-software/01_magmaSoftware/magma --bfile data/01_data_input/07_reference_population/$folderName/g1000_eur --pval data/01_data_input/06_gwas_summary_statistics/$folderName/GCST90027164_buildGRCh37.tsv ncol=N_effective use='rsid,p_value' \
+files=$(find data/01_data_input/07_reference_population/$folderName/ -maxdepth 1 -type f)
+file_names=$(for file in $files; do basename "$file" | sed 's/\..*//'; done)
+most_common_name=$(echo "$file_names" | tr ' ' '\n' | sort | uniq -c | sort -nr | head -n 1)
+
+software/01_magmaSoftware/magma --bfile data/01_data_input/07_reference_population/$folderName/$most_common_name \
+ --pval $(ls data/01_data_input/06_gwas_summary_statistics/$folderName/) ncol=N_effective use='rsid,p_value' \
 --gene-annot data/07_magma_results/$folderName/gene_annotation.genes.annot --out data/07_magma_results/$folderName/gene_analysis 
 
 directory="data/06_format_gene_sets/"$folderName"/02_magmaInput"
@@ -46,10 +52,6 @@ for file in "$directory"/*; do
     fi
 done
 
-
-
-
-sh shellScripts/02_magma/01_magma.sh
 
 # Analyse Magma results
 Rscript R/05_magma_results_analysis/ 
