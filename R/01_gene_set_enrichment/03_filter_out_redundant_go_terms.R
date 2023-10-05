@@ -70,8 +70,7 @@ for (go_file_name in go_file_names) {
   for (cluster in seq(unique(reducedTerms$cluster))) {
     temp_reducedTerms <- reducedTerms %>%
       filter(cluster == !!cluster) %>%
-      arrange(desc(score)) %>%
-      slice(1:3)
+      filter(score == max(score))
 
     reducedGoTerms <- rbind(reducedGoTerms, temp_reducedTerms)
   }

@@ -1,14 +1,18 @@
 library(data.table)
 library(dplyr)
 
+input_file_name <- commandArgs(trailingOnly = TRUE)[1]
+
+# input_file_name <- "als"
+
 input_file_path <-
-  "data/02_magma/08_geneSetAnalysis/"
+  paste0("data/07_magma_results/", input_file_name, "/")
 
 input_file_names <-
   list.files(input_file_path, pattern = ".gsa.out")
 
 output_file_path <-
-  "data/02_magma/09_pValueAdjustedGeneSetAnalysis/"
+  paste0("data/08_p_value_adjusted_magma_results/", input_file_name, "/")
 
 for(file in input_file_names) {
   input_file_name <-
@@ -21,9 +25,9 @@ for(file in input_file_names) {
     arrange(P) %>%
     filter(
       !FULL_NAME %in% c(
-        "diseaseRelatedGenes_gwasCatalogueGenes.csv",
-        "diseaseRelatedGenes_gwasCataloguePlusOrginalGenes.csv",
-        "diseaseRelatedGenes_combinedGeneList.csv"
+        "diseaseAssociatedGenes_diseaseAssociatedGenes.csv",
+        "diseaseAssociatedGenes_gwasAndDiseaseAssociatedGenes.csv",
+        "diseaseAssociatedGenes_gwasAssociatedGenes.csv"
       )
     ) %>%
     relocate(FULL_NAME) %>%

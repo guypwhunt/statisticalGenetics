@@ -4,7 +4,7 @@ library(stringr)
 
 input_file_name <- commandArgs(trailingOnly = TRUE)[1]
 
-input_file_name <- "als"
+# input_file_name <- "als"
 
 input_file_path <-
   paste0("data/06_format_gene_sets/",
