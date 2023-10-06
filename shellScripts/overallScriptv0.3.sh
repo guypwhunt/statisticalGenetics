@@ -61,16 +61,42 @@ mkdir -p data/08_quality_controlled_reference_data/$folderName/
     --het \
     --out data/08_quality_controlled_reference_data/$folderName/ref.QC
 
+Rscript R/06_reference_population_quality_control/01_remove_highly_heterozygosity_samples.R $folderName
+Rscript R/06_reference_population_quality_control/02_resolve_mismatching_snps.R $folderName
+
+/scratch/users/k20064105/statisticalGenetics/software/01_plink/plink \
+    --bfile data/01_data_input/07_reference_population/$folderName/$most_common_name \
+    --extract data/08_quality_controlled_reference_data/$folderName/ref.QC.prune.in \
+    --keep data/08_quality_controlled_reference_data/$folderName/ref.valid.sample \
+    --check-sex \
+    --out data/08_quality_controlled_reference_data/$folderName/ref.QC
+
+/scratch/users/k20064105/statisticalGenetics/software/01_plink/plink \
+    --bfile data/01_data_input/07_reference_population/$folderName/$most_common_name \
+    --extract data/08_quality_controlled_reference_data/$folderName/ref.QC.prune.in \
+    --keep data/08_quality_controlled_reference_data/$folderName/ref.QC.valid \
+    --rel-cutoff 0.125 \
+    --out data/08_quality_controlled_reference_data/$folderName/ref.QC
+
+/scratch/users/k20064105/statisticalGenetics/software/01_plink/plink \
+    --bfile data/01_data_input/07_reference_population/$folderName/$most_common_name \
+    --make-bed \
+    --keep data/08_quality_controlled_reference_data/$folderName/ref.QC.rel.id \
+    --out data/08_quality_controlled_reference_data/$folderName/ref.QC \
+    --extract data/08_quality_controlled_reference_data/$folderName/ref.QC.snplist \
+    --exclude data/08_quality_controlled_reference_data/$folderName/ref.mismatch \
+    --a1-allele data/08_quality_controlled_reference_data/$folderName/ref.a1
+
 
 # Run Magma
 mkdir -p data/09_magma_results/$folderName/
 
-software/02_magma/magma --annotate window=0 --snp-loc $(ls data/01_data_input/07_reference_population/$folderName/*.bim) \
---gene-loc $(ls data/01_data_input/08_gene_locations/$folderName/*.gene.loc) --out data/07_magma_results/$folderName/gene_annotation
+software/02_magma/magma --annotate window=0 --snp-loc data/08_quality_controlled_reference_data/$folderName/ref.QC.bim \
+--gene-loc $(ls data/01_data_input/08_gene_locations/$folderName/*.gene.loc) --out data/09_magma_results/$folderName/gene_annotation
 
-software/02_magma/magma --bfile data/01_data_input/07_reference_population/$folderName/$most_common_name \
+software/02_magma/magma --bfile data/08_quality_controlled_reference_data/$folderName/ref.QC \
  --pval data/07_quality_controlled_gwas_data/$folderName/quality_controlled_gwas_data.csv ncol=N_effective use='rsid,p_value' \
---gene-annot data/07_magma_results/$folderName/gene_annotation.genes.annot --out data/07_magma_results/$folderName/gene_analysis 
+--gene-annot data/09_magma_results/$folderName/gene_annotation.genes.annot --out data/09_magma_results/$folderName/gene_analysis 
 
 directory="data/06_format_gene_sets/"$folderName"/02_magmaInput"
 
@@ -78,8 +104,8 @@ for file in "$directory"/*; do
     if [ -f "$file" ]; then
         filename=$(basename "$file")
         filename_noext="${filename%.*}"
-        software/02_magma/magma --gene-results data/07_magma_results/$folderName/gene_analysis.genes.raw \
-        --set-annot $file --out data/07_magma_results/$folderName/$filename_noext
+        software/02_magma/magma --gene-results data/09_magma_results/$folderName/gene_analysis.genes.raw \
+        --set-annot $file --out data/09_magma_results/$folderName/$filename_noext
     fi
 done
 
