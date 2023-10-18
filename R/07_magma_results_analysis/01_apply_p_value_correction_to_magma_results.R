@@ -2,19 +2,27 @@ library(data.table)
 library(dplyr)
 
 input_file_name <- commandArgs(trailingOnly = TRUE)[1]
+mfa <- commandArgs(trailingOnly = TRUE)[2] %>% as.numeric() %>%
+  format(scientific = FALSE)
 
 # input_file_name <- "als"
 
 input_file_path <-
-  paste0("data/07_magma_results/", input_file_name, "/")
+  paste0("data/09_magma_results/", input_file_name, "/",
+         mfa,
+         "/")
 
 input_file_names <-
   list.files(input_file_path, pattern = ".gsa.out")
 
 output_file_path <-
-  paste0("data/08_p_value_adjusted_magma_results/", input_file_name, "/")
+  paste0("data/10_p_value_adjusted_magma_results/",
+         input_file_name,
+         "/",
+         mfa,
+         "/")
 
-for(file in input_file_names) {
+for (file in input_file_names) {
   input_file_name <-
     paste0(input_file_path, file)
 
@@ -44,5 +52,3 @@ for(file in input_file_names) {
   fwrite(gene_set_results,
          paste0(output_file_path, file, ".csv"))
 }
-
-

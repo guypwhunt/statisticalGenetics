@@ -3,9 +3,12 @@ library(tidyverse)
 library(dplyr)
 library(biomaRt)
 
+ensembl <-
+  useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
+
 input_file_name <- commandArgs(trailingOnly = TRUE)[1]
 
-# input_file_name <- "als"
+input_file_name <- "als"
 
 input_file_path <-
   paste0("data/01_data_input/05_gwas_associated_genes/",

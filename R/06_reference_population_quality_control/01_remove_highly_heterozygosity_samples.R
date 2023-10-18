@@ -3,17 +3,23 @@ library(dplyr)
 library(stringr)
 
 input_file_name <- commandArgs(trailingOnly = TRUE)[1]
+mfa <- commandArgs(trailingOnly = TRUE)[2] %>% as.numeric() %>%
+  format(scientific = FALSE)
 
 input_file_name <- "als"
 
 input_file_path <-
   paste0("data/08_quality_controlled_reference_data/",
          input_file_name,
+         "/",
+         mfa,
          "/")
 
 output_file_path <-
   paste0("data/08_quality_controlled_reference_data/",
          input_file_name,
+         "/",
+         mfa,
          "/")
 
 ref_data <- fread(paste0(input_file_path, "ref.QC.het"))

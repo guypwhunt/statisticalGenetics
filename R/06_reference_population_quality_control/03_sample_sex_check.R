@@ -4,6 +4,8 @@ library(stringr)
 library(magrittr)
 
 input_file_name <- commandArgs(trailingOnly = TRUE)[1]
+mfa <- commandArgs(trailingOnly = TRUE)[2] %>% as.numeric() %>%
+  format(scientific = FALSE)
 
 # input_file_name <- "als"
 
@@ -16,17 +18,24 @@ gwas_input_file_path <-
   paste0(
     "data/07_quality_controlled_gwas_data/",
     input_file_name,
-    "/quality_controlled_gwas_data.csv"
+    "/",
+    mfa,
+    "/",
+    "/quality_controlled_gwas_data.tsv"
   )
 
 qcd_snps_file_path <-
   paste0("data/08_quality_controlled_reference_data/",
          input_file_name,
+         "/",
+         mfa,
          "/ref.QC.snplist")
 
 output_file_path <-
   paste0("data/08_quality_controlled_reference_data/",
          input_file_name,
+         "/",
+         mfa,
          "/")
 
 bim_data <-
