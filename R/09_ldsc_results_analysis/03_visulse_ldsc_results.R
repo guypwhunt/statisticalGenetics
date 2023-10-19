@@ -6,20 +6,20 @@ library(data.table)
 input_file_name <- commandArgs(trailingOnly = TRUE)[1]
 mfa <- commandArgs(trailingOnly = TRUE)[2] %>% as.numeric() %>%
   format(scientific = FALSE)
-#
-# mfa <- 0.01
+
+# mfa <- 0.0025
 #
 # input_file_name <- "als"
 
 input_file_path <-
-  paste0("data/10_p_value_adjusted_magma_results/",
+  paste0("data/14_p_value_adjusted_ldsc_results/",
          input_file_name,
          "/",
          mfa,
          "/")
 
 output_file_path <-
-  paste0("data/10_p_value_adjusted_magma_results/",
+  paste0("data/14_p_value_adjusted_ldsc_results/",
          input_file_name,
          "/",
          mfa,
@@ -28,26 +28,26 @@ output_file_path <-
 results_including_gwas_hits <-
   fread(paste0(
     input_file_path,
-    "geneSetsIncludingKnownDiseaseGenes.gsa.out.csv"
+    "geneSetsIncludingKnownDiseaseGenes.csv"
   ))
 
 results_excluding_gwas_hits <-
   fread(paste0(
     input_file_path,
-    "geneSetsExcludingKnownDiseaseGenes.gsa.out.csv"
+    "geneSetsExcludingKnownDiseaseGenes.csv"
   )) %>%
-  select(c(FULL_NAME, P, Adjust_P)) %>%
-  rename(ex_P = P, ex_Adjust_P = Adjust_P)
+  select(c(gene_set, Enrichment_p, Adjust_P)) %>%
+  rename(ex_p = Enrichment_p, ex_Adjust_P = Adjust_P)
 
 
 all_results <-
   merge(results_including_gwas_hits,
         results_excluding_gwas_hits,
-        by = "FULL_NAME") %>%
-  filter(P < 0.05) %>%
+        by = "gene_set") %>%
+  filter(Enrichment_p < 0.05) %>%
   mutate(
     Log_Adjust_P = 0 - log10(Adjust_P),
-    FULL_NAME  = str_replace(str_replace_all(FULL_NAME , "_", " "), ".csv", "")
+    gene_set  = str_replace(str_replace_all(gene_set , "_", " "), ".csv", "")
   ) %>%
   arrange(Adjust_P)
 
@@ -59,8 +59,8 @@ insert_line_break <- function(input_string) {
   return(paste(words, collapse = " "))
 }
 
-all_results$FULL_NAME <-
-  lapply(all_results$FULL_NAME, insert_line_break) %>%
+all_results$gene_set <-
+  lapply(all_results$gene_set, insert_line_break) %>%
   unlist()
 
 all_results$excluding_significance <-
@@ -81,11 +81,9 @@ all_results$excluding_significance <-
     )
   )
 
-
-
 ggplot(all_results,
        aes(
-         x = reorder(FULL_NAME,-Log_Adjust_P),
+         x = reorder(gene_set,-Log_Adjust_P),
          y = Log_Adjust_P,
          color = excluding_significance
        )) +
@@ -108,7 +106,7 @@ ggplot(all_results,
                                 "Not Significant"="blue"))
 
 ggsave(
-  paste0(output_file_path, "magma_results.png"),
+  paste0(output_file_path, "ldsc_results.png"),
   dpi = 600,
   width = 20,
   height = 15,
